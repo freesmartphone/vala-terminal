@@ -17,16 +17,21 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  *
+ * Contributions by Aapo Rantalainen:
+ * - rotatable toolbar
+ * - no tab-panel (tab are changed by toolbar)
+ * - increased fontsize max 
+ * - start with focus on textarea
+ * - (workaround of commandlinebug)
  */
 
 using GLib;
-//using Gdk;
 using Gtk;
 
 public class ValaTerminal2.MainWindow : Window
 {
-    private VBox vbox;
-    private Toolbar toolbar;
+    private Box box;
+    private Box toolbar;
     private Notebook notebook;
 
     private ToolButton btn_new;
@@ -34,9 +39,18 @@ public class ValaTerminal2.MainWindow : Window
     private ToolButton btn_zoom_in;
     private ToolButton btn_zoom_out;
     private ToolButton btn_paste;
+    private ToolButton btn_prev_tab;
+    private ToolButton btn_next_tab;
+    private ToolButton btn_rotate;
+    private ToolButton tab_counter;
 
     private static string initial_command;
     private static string[] initial_command_line;
+    private bool vertical;  /* true, if toolbar is oriented vertically */
+
+    /* because of bug http://bugzilla.gnome.org/show_bug.cgi?id=547135,
+    we just pass whole commandline to the terminal */
+    private static string hack_command;
 
     public MainWindow()
     {
@@ -46,14 +60,31 @@ public class ValaTerminal2.MainWindow : Window
     construct
     {
         destroy += Gtk.main_quit;
-        vbox = new Gtk.VBox( false, 0 );
-        add( vbox );
+        vertical=false;
+
+        if (vertical)
+            box = new Gtk.HBox( false, 0 );
+        else
+            box = new Gtk.VBox( false, 0 );
+        add( box );
+
         setup_toolbar();
+        box.pack_start( toolbar, false, false, 0 );
+
         setup_notebook();
+        box.pack_start( notebook, true, true, 0 );
+
+        box.set_focus_child(notebook);
+
+        notebook.page_removed += (o, page, num) => {
+            stdout.printf( "on_page_removed\n");
+            if ( notebook.get_n_pages() == 0 )
+                Gtk.main_quit();
+            else
+                update_toolbar();
+        };
+
         update_toolbar();
-        Idle.add( on_idle );
-        Idle.add( on_idle_first_command );
-        //window.add_filter( on_gdk_filter, this );
     }
 
     public void setup_command( string command )
@@ -63,83 +94,74 @@ public class ValaTerminal2.MainWindow : Window
 
     public void setup_toolbar()
     {
-        toolbar = new Gtk.Toolbar();
-        vbox.pack_start( toolbar, false, false, 0 );
+        if (vertical)
+            toolbar = new Gtk.VBox( false, 0 );
+        else
+            toolbar = new Gtk.HBox( false, 0 );
 
         btn_new = new Gtk.ToolButton.from_stock( STOCK_NEW );
         btn_new.clicked += on_new_clicked;
-        toolbar.insert( btn_new, 0 );
+        toolbar.pack_start( btn_new, false, false, 0 );
 
         btn_delete = new Gtk.ToolButton.from_stock( STOCK_DELETE );
         btn_delete.clicked += on_delete_clicked;
-        toolbar.insert( btn_delete, 1 );
+        toolbar.pack_start( btn_delete, false, false, 0 );
 
-        toolbar.insert( new Gtk.SeparatorToolItem(), 2 );
+        //toolbar.insert( new Gtk.SeparatorToolItem(), 2 );
 
         btn_zoom_in = new Gtk.ToolButton.from_stock( STOCK_ZOOM_IN );
         btn_zoom_in.clicked += on_zoom_in_clicked;
-        toolbar.insert( btn_zoom_in, 3 );
+        toolbar.pack_start( btn_zoom_in, false, false, 0 );
 
         btn_zoom_out = new Gtk.ToolButton.from_stock( STOCK_ZOOM_OUT );
         btn_zoom_out.clicked += on_zoom_out_clicked;
-        toolbar.insert( btn_zoom_out, 4 );
+        toolbar.pack_start( btn_zoom_out, false, false, 0 );
 
-        toolbar.insert( new Gtk.SeparatorToolItem(), 5 );
+        //toolbar.insert( new Gtk.SeparatorToolItem(), 5 );
 
         btn_paste = new Gtk.ToolButton.from_stock( STOCK_PASTE );
         btn_paste.clicked += on_paste_clicked;
-        toolbar.insert( btn_paste, 6 );
+        toolbar.pack_start( btn_paste, false, false, 0 );
+
+        //toolbar.insert( new Gtk.SeparatorToolItem(), 7 );
+
+
+        btn_prev_tab = new Gtk.ToolButton.from_stock( STOCK_GO_BACK );
+        btn_prev_tab.clicked += on_prev_tab_clicked;
+        btn_prev_tab.set_sensitive( false);
+
+        toolbar.pack_start( btn_prev_tab, false, false, 0 );
+
+        btn_next_tab = new Gtk.ToolButton.from_stock( STOCK_GO_FORWARD );
+        btn_next_tab.clicked += on_next_tab_clicked;
+        btn_next_tab.set_sensitive( false);
+
+        toolbar.pack_start( btn_next_tab, false, false, 0 );
+
+        tab_counter = new ToolButton(null, "");
+        toolbar.pack_start( tab_counter, false, false, 0 );
+
+        //toolbar.insert( new Gtk.SeparatorToolItem(), 11 );
+
+        btn_rotate = new Gtk.ToolButton.from_stock( STOCK_REFRESH );
+        btn_rotate.clicked += on_rotate_clicked;
+        btn_rotate.set_label ("Rotate");
+        toolbar.pack_start( btn_rotate, false, false, 0 );
     }
 
     public void setup_notebook()
     {
         notebook = new Gtk.Notebook();
         notebook.set_tab_pos( PositionType.BOTTOM );
-        vbox.pack_start( notebook, true, true, 0 );
+        notebook.set_show_tabs(false);
+        notebook.set_show_border(false);
 
         var terminal = new ValaTerminal2.MokoTerminal();
         notebook.append_page( terminal, new Image.from_stock( STOCK_INDEX, IconSize.LARGE_TOOLBAR ) );
         notebook.child_set (terminal, "tab-expand", true, null );
-    }
-
-    /*
-    [InstanceLast()]
-    private Gdk.FilterReturn on_gdk_filter( Gdk.Event e, pointer xevent )
-    {
-        //stdout.printf( "gdk filter, event %d\n", e.type );
-        if ( e.type == Gdk.EventType.PROPERTY_NOTIFY )
-        {
-            stdout.printf( "gdk filter, property notify event for atom %d, state %d\n", ((Gdk.EventProperty)e).atom, ((Gdk.EventProperty)e).state );
-        }
-        return Gdk.FilterReturn.CONTINUE;
-    }
-    */
-
-    private bool on_idle()
-    {
-        stdout.printf( "on_idle\n" );
-        notebook.switch_page += (o, page, num) => {
-            btn_delete.set_sensitive( notebook.get_n_pages() > 1 );
-            ValaTerminal2.MokoTerminal terminal = (ValaTerminal2.MokoTerminal) notebook.get_nth_page( (int)num ); btn_zoom_in.set_sensitive( terminal.get_font_size() < 10 );
-            btn_zoom_out.set_sensitive( terminal.get_font_size() > 1 );
-        };
-        notebook.page_removed += (o, page, num) => {
-            stdout.printf( "on_page_removed\n");
-            if ( notebook.get_n_pages() == 0 )
-                Gtk.main_quit();
-            else
-                update_toolbar();
-        };
-        return false;
-    }
-
-    private bool on_idle_first_command()
-    {
-        stdout.printf( "on_idle_first_command\n" );
-        ValaTerminal2.MokoTerminal terminal = (ValaTerminal2.MokoTerminal) notebook.get_nth_page( 0 );
-        if ( initial_command != null )
-            terminal.paste_command( initial_command );
-        return false;
+        /* see bug: http://bugzilla.gnome.org/show_bug.cgi?id=547135 */
+        if ( hack_command != null )
+            terminal.paste_command(hack_command);
     }
 
     private void on_new_clicked( Gtk.ToolButton b )
@@ -184,6 +206,51 @@ public class ValaTerminal2.MainWindow : Window
         update_toolbar();
     }
 
+    private void on_prev_tab_clicked( Gtk.ToolButton b )
+    {
+        stdout.printf( "on_prev_tab_clicked\n" );
+        notebook.prev_page();
+        update_toolbar();
+    }
+
+    private void on_next_tab_clicked( Gtk.ToolButton b )
+    {
+        stdout.printf( "on_next_tab_clicked\n" );
+        notebook.next_page();
+        update_toolbar();
+    }
+
+   private void on_rotate_clicked( Gtk.ToolButton b )
+   {
+        stdout.printf( "on_rotate_clicked\n" );
+        vertical=!vertical;
+
+        box.remove(notebook);
+        box.remove(toolbar);
+        remove( box );
+        setup_toolbar();
+
+       /* toolbar is top of text / right of text (see .pack_start/.pack_end) */
+       if (vertical)
+            {
+            box = new Gtk.HBox( false, 0 );
+            box.pack_start( notebook, true, true, 0 );
+            box.pack_start( toolbar, false, false, 0 );
+            }
+       else 
+            {
+            box = new Gtk.VBox( false, 0 );
+            box.pack_end( notebook, true, true, 0 );
+            box.pack_end( toolbar, false, false, 0 );
+            }
+       add( box );
+
+        /* box.grab_focus(); */  /* this does not help*/
+        box.set_focus_child(notebook); /* now this does not work? */
+        update_toolbar();
+        show_all();
+    }
+
     public void update_toolbar()
     {
         stdout.printf( "update_toolbar\n" );
@@ -195,8 +262,18 @@ public class ValaTerminal2.MainWindow : Window
         btn_delete.set_sensitive( notebook.get_n_pages() > 1 );
         ValaTerminal2.MokoTerminal terminal = (ValaTerminal2.MokoTerminal) notebook.get_nth_page( notebook.get_current_page() );
         stdout.printf( "current font size for terminal is %u\n", terminal.get_font_size() );
-        btn_zoom_in.set_sensitive( terminal.get_font_size() < 10 );
+        btn_zoom_in.set_sensitive( terminal.get_font_size() < 20 );
         btn_zoom_out.set_sensitive( terminal.get_font_size() > 1 );
+
+        var current_tab = notebook.get_current_page();
+        if (current_tab==-1) /* This in case of error. Do not show error to user */
+            current_tab=0;
+        current_tab++;       /* Program starts calculating tabs from 0, so we add one to it */
+
+        string count = "tab:%d/%d".printf (current_tab, notebook.get_n_pages());
+        btn_prev_tab.set_sensitive( current_tab != 1 );
+        btn_next_tab.set_sensitive( current_tab != notebook.get_n_pages() );
+        tab_counter.set_label (count);
     }
 
     public void run()
@@ -223,6 +300,10 @@ public class ValaTerminal2.MainWindow : Window
             return 1;
         }
 
+        // pass all parameters (see: http://bugzilla.gnome.org/show_bug.cgi?id=547135 )
+        if (args.length>0)
+            hack_command=args[1]+"\n";
+
         var window = new MainWindow();
         if ( initial_command != null )
         {
@@ -235,7 +316,6 @@ public class ValaTerminal2.MainWindow : Window
         }
 
         window.run();
-
         return 0;
     }
 

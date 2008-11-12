@@ -2,6 +2,7 @@
  * mokoterminal.vala
  *
  * Authored by Michael 'Mickey' Lauer <mickey@vanille-media.de>
+ * Copyright (C) 2007-2008 Vala, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

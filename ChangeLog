@@ -1,0 +1,13 @@
+2008-11-12	Aapo Rantalainen <aapo.rantalainen@gmail.com>
+
+	* Removed tab panel. Tabs are now handled with toolbar buttons, this
+	saves quite a bit of screen real estate
+	* Toolbar can switch orientation
+	* Increase maximum fontsize to 20
+	* Set focus on textarea
+	* Workaround commandline parameter bug
+	(see http://bugzilla.gnome.org/show_bug.cgi?id=547135)
+
+2008-11-12	Michael Lauer	<mlauer@vanille-media.de>
+
+	* Imported Openmoko-Terminal2 from Openmoko SVN and change name
