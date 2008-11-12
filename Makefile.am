@@ -55,5 +55,4 @@ MAINTAINERCLEANFILES = aclocal.m4 compile config.guess config.sub \
                        intltool-extract \
                        intltool-merge \
                        intltool-update \
-                       mkinstalldirs src/*.h src/*.c \
-                       
+                       mkinstalldirs src/*.h src/*.c
