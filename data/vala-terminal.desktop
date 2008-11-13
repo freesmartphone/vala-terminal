@@ -1,12 +1,11 @@
 [Desktop Entry]
-Encoding=UTF-8
 Name=Terminal
-Comment=Command Line Interface Terminal
-Exec=openmoko-terminal2
-Icon=openmoko-terminal
+Comment=Command Line Interface
+Exec=vala-terminal
+Icon=vala-terminal
 Terminal=false
 Type=Application
 Categories=GTK;Application;Utility;
 MimeType=text/x-vcard;
-SingleInstance=true
+X-SingleInstance=true
 StartupNotify=true
