@@ -27,7 +27,7 @@ vala_terminal_SOURCES = \
 	$(NULL)
 
 src/vala-terminal.vala.stamp: $(vala_terminal_VALASOURCES)
-	$(VALAC) --pkg vte --save-temps --basedir $(top_srcdir) $^
+	$(VALAC) -c --pkg vte --save-temps --basedir $(top_srcdir) $^
 	touch $@
 
 vala_terminal_LDADD = \
