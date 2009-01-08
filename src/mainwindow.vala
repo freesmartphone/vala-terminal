@@ -291,9 +291,7 @@ public class ValaTerminal2.MainWindow : Window
 
     static int main (string[] args) {
         try {
-            // FIXME revisit once http://bugzilla.gnome.org/show_bug.cgi?id=547135 got fixed
-            // Gtk.init_with_args( ref args, " - a lightweight terminal for the Vala environment", options, "openmoko-terminal" );
-            Gtk.init( ref args );
+            Gtk.init_with_args( ref args, " - a lightweight terminal written in Vala", options, "vala-terminal" );
         } catch (Error e)
         {
             stderr.printf("Error: %s\n", e.message);
