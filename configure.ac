@@ -1,4 +1,4 @@
-AC_INIT([vala-terminal], [1.1.0], [mlauer@vanille-media.de], [vala-terminal])
+AC_INIT([vala-terminal], [1.1.1], [mlauer@vanille-media.de], [vala-terminal])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
