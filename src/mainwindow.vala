@@ -294,16 +294,35 @@ public class ValaTerminal2.MainWindow : Window
 
     static int main (string[] args) {
         try {
-            Gtk.init_with_args( ref args, " - a lightweight terminal written in Vala", options, "vala-terminal" );
+         // Gtk.init_with_args( ref args, " - a lightweight terminal written in Vala", options, "vala-terminal" );
+            Gtk.init( ref args ); /*FIX. GTK-args do not work*/
         } catch (Error e)
         {
             stderr.printf("Error: %s\n", e.message);
             return 1;
         }
 
-        // pass all parameters (see: http://bugzilla.gnome.org/show_bug.cgi?id=547135 )
-        if (args.length>0)
-            hack_command=args[1]+"\n";
+        if (args.length>1)
+         {
+         // just pass all parameters (see: http://bugzilla.gnome.org/show_bug.cgi?id=547135 )
+         if (args[1]=="-e")
+            {
+            int i=2;
+            hack_command="";
+            while (args.length>i)
+               {
+               hack_command+=args[i]+" ";
+               i++;
+               }
+            hack_command+="\n";
+            //stdout.printf( "hack command: '%s'\n",hack_command );
+            }
+         else
+            {
+            stdout.printf("%s: unknown flag '%s' \n",args[0],args[1]);
+            return 1;
+            }
+         }
 
         var window = new MainWindow();
         if ( initial_command != null )
