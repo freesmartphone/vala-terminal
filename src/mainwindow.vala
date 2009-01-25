@@ -23,6 +23,8 @@
  * - increased fontsize max 
  * - start with focus on textarea
  * - (workaround of commandlinebug)
+ *
+ * - Jump to the new created tab
  */
 
 using GLib;
@@ -171,6 +173,7 @@ public class ValaTerminal2.MainWindow : Window
         notebook.append_page( terminal, new Image.from_stock( STOCK_INDEX, IconSize.LARGE_TOOLBAR ) );
         notebook.child_set (terminal, "tab-expand", true, null );
         notebook.show_all();
+        notebook.set_current_page(notebook.get_n_pages()-1); /*jump to that new tab*/
         update_toolbar();
     }
 
