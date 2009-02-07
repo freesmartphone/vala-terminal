@@ -32,12 +32,17 @@ public class ValaTerminal2.MokoTerminal : HBox
     private Scrollbar scrollbar;
     private Terminal terminal;
 
+    public static uint starting_fontsize;
+    public static void set_starting_fontsize(uint size){
+    starting_fontsize=size;
+    }
+
     construct {
         stdout.printf( "moko-terminal constructed\n" );
 
         // may read from gconf at some point?
         fontname = "LiberationMono";
-        fontsize = 5;
+        fontsize = starting_fontsize;
 
         terminal = new Vte.Terminal();
         // auto-exit may become a preference at some point?

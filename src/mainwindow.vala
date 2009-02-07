@@ -54,15 +54,11 @@ public class ValaTerminal2.MainWindow : Window
     we just pass whole commandline to the terminal */
     private static string hack_command;
 
-    public MainWindow()
+    public MainWindow(bool start_vertical)
     {
         title = "Terminal";
-    }
-
-    construct
-    {
         destroy += Gtk.main_quit;
-        vertical=false;
+        vertical= start_vertical;
 
         setup_toolbar();
         setup_notebook();
@@ -301,36 +297,75 @@ public class ValaTerminal2.MainWindow : Window
     static int main (string[] args) {
         try {
          // Gtk.init_with_args( ref args, " - a lightweight terminal written in Vala", options, "vala-terminal" );
-            Gtk.init( ref args ); /*FIX. GTK-args do not work*/
+            Gtk.init( ref args ); /*FIX. GTK-args do not work. http://bugzilla.gnome.org/show_bug.cgi?id=547135*/
         } catch (Error e)
         {
             stderr.printf("Error: %s\n", e.message);
             return 1;
         }
 
-        if (args.length>1)
-         {
-         // just pass all parameters (see: http://bugzilla.gnome.org/show_bug.cgi?id=547135 )
-         if (args[1]=="-e")
-            {
-            int i=2;
-            hack_command="";
-            while (args.length>i)
-               {
-               hack_command+=args[i]+" ";
-               i++;
-               }
-            hack_command+="\n";
-            //stdout.printf( "hack command: '%s'\n",hack_command );
-            }
-         else
-            {
-            stdout.printf("%s: unknown flag '%s' \n",args[0],args[1]);
-            return 1;
-            }
-         }
+        /*I want use these like MACROS, how to put them some else place? */
+        uint DEFAULT_FONTSIZE = 5;
+        bool DEFAULT_START_VERTICAL = false;
 
-        var window = new MainWindow();
+        uint fontsize = DEFAULT_FONTSIZE;
+        bool start_vertical = DEFAULT_START_VERTICAL;
+
+        /*commandline parameter handling*/
+        int counter=1;
+        while (counter<args.length)
+        {
+            if (args[counter]=="--help") 
+            {
+               stdout.printf("Flag\tparameter\tmeaning\n");
+               stdout.printf(" -v\t        \tStart with toolbar vertically (default=%s)\n",DEFAULT_START_VERTICAL?"vertical":"horizontal");
+               stdout.printf(" -h\t        \tStart with toolbar horizontally\n");
+               stdout.printf(" -fs\t   int    \tStarting fontize (default=%u)\n",DEFAULT_FONTSIZE);
+               stdout.printf(" -e\tcmd [par1...]\tExecutes 'cmd' inside terminal [with parameters] (-e must be last flag)\n\n");
+               return 0;
+            }
+            else if (args[counter]=="-e")   /*from xterm  -e command */
+            {
+               int i=counter+1;
+               hack_command="";
+               while (args.length>i)
+                  {
+                  hack_command+=args[i]+" ";
+                  i++;
+                  }
+               hack_command+="\n";
+               //stdout.printf( "hack command: '%s'\n",hack_command );
+               counter=args.length;
+            }
+            else if (args[counter]=="-fs") 
+            {
+               fontsize=(args[counter+1]).to_int();
+               if (fontsize<1) 
+                  fontsize=1;
+               counter+=2;
+               //stdout.printf("fontsize switched to %u \n",fontsize);
+            }
+            else if (args[counter]=="-v") 
+            {
+               start_vertical=true;
+               counter++;
+               //stdout.printf("toolbar switched to vertical\n");
+            }
+            else if (args[counter]=="-h") 
+            {
+               start_vertical=false;
+               counter++;
+               //stdout.printf("toolbar switched to horizontal\n");
+            }
+            else
+            {
+               stdout.printf("%s: unknown flag '%s' \nUse --help\n",args[0],args[counter]);
+               return 1;
+            }
+        }
+
+        ValaTerminal2.MokoTerminal.set_starting_fontsize(fontsize);
+        var window = new MainWindow(start_vertical);
         if ( initial_command != null )
         {
             window.setup_command( initial_command );
