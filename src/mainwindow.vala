@@ -64,17 +64,23 @@ public class ValaTerminal2.MainWindow : Window
         destroy += Gtk.main_quit;
         vertical=false;
 
+        setup_toolbar();
+        setup_notebook();
+
         if (vertical)
+            {
             box = new Gtk.HBox( false, 0 );
-        else
+            box.pack_start( notebook, true, true, 0 );
+            box.pack_start( toolbar, false, false, 0 );
+            }
+        else 
+            {
             box = new Gtk.VBox( false, 0 );
+            box.pack_end( notebook, true, true, 0 );
+            box.pack_end( toolbar, false, false, 0 );
+            }
         add( box );
 
-        setup_toolbar();
-        box.pack_start( toolbar, false, false, 0 );
-
-        setup_notebook();
-        box.pack_start( notebook, true, true, 0 );
 
         box.set_focus_child(notebook);
 
