@@ -49,8 +49,8 @@ public class ValaTerminal2.MokoTerminal : HBox
         scrollbar = new VScrollbar( terminal.adjustment );
         pack_start( scrollbar, false, false, 0 );
 
-        var fore = Gdk.Color() { pixel = 0, red = 0x0000, green = 0x0000, blue = 0x0000 };
-        var back = Gdk.Color() { pixel = 0, red = 0xffff, green = 0xffff, blue = 0xffff };
+        var fore = Gdk.Color() { pixel = 0, red = 0xffff, green = 0xffff, blue = 0xffff };
+        var back = Gdk.Color() { pixel = 0, red = 0x0000, green = 0x0000, blue = 0x0000 };
         var colors = new Gdk.Color[] {
             Gdk.Color() { pixel = 0, red = 0x0000, green = 0x0000, blue = 0x0000 },
             Gdk.Color() { pixel = 0, red = 0x8000, green = 0x0000, blue = 0x0000 },
