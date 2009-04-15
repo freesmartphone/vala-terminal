@@ -295,14 +295,17 @@ public class ValaTerminal2.MainWindow : Window
     };
 
     static int main (string[] args) {
-        try {
-         // Gtk.init_with_args( ref args, " - a lightweight terminal written in Vala", options, "vala-terminal" );
-            Gtk.init( ref args ); /*FIX. GTK-args do not work. http://bugzilla.gnome.org/show_bug.cgi?id=547135*/
+      /*FIX. GTK.init_with_args doesn't work. http://bugzilla.gnome.org/show_bug.cgi?id=547135 */
+      Gtk.init( ref args );
+
+/*        try {
+          Gtk.init_with_args( ref args, " - a lightweight terminal written in Vala", options, "vala-terminal" );
         } catch (Error e)
         {
             stderr.printf("Error: %s\n", e.message);
             return 1;
         }
+*/
 
         /*I want use these like MACROS, how to put them some else place? */
         uint DEFAULT_FONTSIZE = 5;
@@ -321,7 +324,11 @@ public class ValaTerminal2.MainWindow : Window
                stdout.printf(" -v\t        \tStart with toolbar vertically (default=%s)\n",DEFAULT_START_VERTICAL?"vertical":"horizontal");
                stdout.printf(" -h\t        \tStart with toolbar horizontally\n");
                stdout.printf(" -fs\t   int    \tStarting fontize (default=%u)\n",DEFAULT_FONTSIZE);
-               stdout.printf(" -e\tcmd [par1...]\tExecutes 'cmd' inside terminal [with parameters] (-e must be last flag)\n\n");
+               stdout.printf(" -f\t fontname \tUses font 'fontname'(default=LiberationMono)\n");
+               stdout.printf(" -fc\t  r g b  \tFont color (values are between 0...65535) (default=65535 65535 65535)\n");
+               stdout.printf(" -bc\t  r g b  \tBackground color (values are between 0...65535) (default=0 0 0)\n");
+               stdout.printf(" -e\tcmd [par1...]\tExecutes 'cmd' inside terminal [with parameters] (-e must be last flag)\n");
+stdout.printf("\n");
                return 0;
             }
             else if (args[counter]=="-e")   /*from xterm  -e command */
@@ -339,6 +346,11 @@ public class ValaTerminal2.MainWindow : Window
             }
             else if (args[counter]=="-fs") 
             {
+               if (counter+2>args.length)
+                     {
+                     stdout.printf("USAGE: -fs int\n");
+                     return 0;
+                     }
                fontsize=(args[counter+1]).to_int();
                if (fontsize<1) 
                   fontsize=1;
@@ -357,6 +369,41 @@ public class ValaTerminal2.MainWindow : Window
                counter++;
                //stdout.printf("toolbar switched to horizontal\n");
             }
+            else if (args[counter]=="-fc") 
+            {
+               if (counter+4>args.length)
+                     {
+                     stdout.printf("USAGE: -fc int int int\n");
+                     return 0;
+                     }
+               ValaTerminal2.MokoTerminal.set_fore_color((args[counter+1]).to_int(), (args[counter+2]).to_int(),(args[counter+3]).to_int());
+               counter+=4;
+               //stdout.printf("foreground color changed\n");
+            }
+            else if (args[counter]=="-bc") 
+            {
+               if (counter+4>args.length)
+                     {
+                     stdout.printf("USAGE: -bc int int int\n");
+                     return 0;
+                     }
+               ValaTerminal2.MokoTerminal.set_back_color((args[counter+1]).to_int(), (args[counter+2]).to_int(),(args[counter+3]).to_int());
+               counter+=4;
+               //stdout.printf("background color changed\n");
+            }
+
+            else if (args[counter]=="-f") 
+            {
+               if (counter+2>args.length)
+                     {
+                     stdout.printf("USAGE: -f fontname\n");
+                     return 0;
+                     }
+               ValaTerminal2.MokoTerminal.set_font(args[counter+1]);
+               counter+=2;;
+               //stdout.printf("font changed\n");
+            }
+
             else
             {
                stdout.printf("%s: unknown flag '%s' \nUse --help\n",args[0],args[counter]);

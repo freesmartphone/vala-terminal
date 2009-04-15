@@ -27,21 +27,70 @@ using Vte;
 
 public class ValaTerminal2.MokoTerminal : HBox
 {
-    private string fontname;
+    private static string fontname;
+      public static void set_font(string font){
+      fontname = font;
+      }
+
     private uint fontsize;
     private Scrollbar scrollbar;
     private Terminal terminal;
 
-    public static uint starting_fontsize;
-    public static void set_starting_fontsize(uint size){
-    starting_fontsize=size;
-    }
+    private static uint starting_fontsize;
+      public static void set_starting_fontsize(uint size){
+      starting_fontsize=size;
+      }
+
+   private static bool use_default_fore_color=true;
+   private static uint16 fore_red   ;
+   private static uint16 fore_green ;
+   private static uint16 fore_blue  ;
+
+   public static void set_fore_color(uint r,uint g,uint b) {
+      use_default_fore_color=false;
+      fore_red   = (uint16) r;
+      fore_green = (uint16) g;
+      fore_blue  = (uint16) b;
+      }
+
+
+   private static bool use_default_back_color=true;
+   private static uint16 back_red   ;
+   private static uint16 back_green ;
+   private static uint16 back_blue  ;
+
+   public static void set_back_color(uint r,uint g,uint b) {
+      use_default_back_color=false;
+      back_red   = (uint16) r;
+      back_green = (uint16) g;
+      back_blue  = (uint16) b;
+      }
+
+
 
     construct {
         stdout.printf( "moko-terminal constructed\n" );
 
+         if (fontname == null)
+             fontname = "LiberationMono";
+
+        if (use_default_fore_color)
+            {
+            fore_red = 0xffff;
+            fore_green = 0xffff;
+            fore_blue = 0xffff;
+            }
+
+        if (use_default_back_color)
+            {
+            back_red = 0x0000;
+            back_green = 0x0000;
+            back_blue = 0x0000;
+            }
+
+
+
         // may read from gconf at some point?
-        fontname = "LiberationMono";
         fontsize = starting_fontsize;
 
         terminal = new Vte.Terminal();
@@ -54,8 +103,11 @@ public class ValaTerminal2.MokoTerminal : HBox
         scrollbar = new VScrollbar( terminal.adjustment );
         pack_start( scrollbar, false, false, 0 );
 
-        var fore = Gdk.Color() { pixel = 0, red = 0xffff, green = 0xffff, blue = 0xffff };
-        var back = Gdk.Color() { pixel = 0, red = 0x0000, green = 0x0000, blue = 0x0000 };
+//        var fore = Gdk.Color() { pixel = 0, red = 0xffff, green = 0xffff, blue = 0xffff };
+//        var back = Gdk.Color() { pixel = 0, red = 0x0000, green = 0x0000, blue = 0x0000 };
+        var fore = Gdk.Color() { pixel = 0, red = fore_red, green = fore_green, blue = fore_blue };
+        var back = Gdk.Color() { pixel = 0, red = back_red, green = back_green, blue = back_blue };
+
         var colors = new Gdk.Color[] {
             Gdk.Color() { pixel = 0, red = 0x0000, green = 0x0000, blue = 0x0000 },
             Gdk.Color() { pixel = 0, red = 0x8000, green = 0x0000, blue = 0x0000 },
