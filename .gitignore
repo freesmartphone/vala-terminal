@@ -19,9 +19,17 @@ depcomp
 libtool
 install-sh
 missing
+mkinstalldirs
 ltmain.sh
 ylwrap
 compile
 stamp-h1
 *.pc
+
+Makefile.in.in
+POTFILES
+stamp-it
+.dirstamp
+
+vala-terminal
 
