@@ -1,7 +1,7 @@
 /*
- * mainwindow.vala
+ * Vala-Terminal -- a lightweight terminal program
  *
- * Authored by Michael 'Mickey' Lauer <mickey@vanille-media.de>
+ * (C) 2007-2009 Michael 'Mickey' Lauer <mickey@vanille-media.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
