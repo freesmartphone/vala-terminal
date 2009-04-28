@@ -43,12 +43,14 @@ public class ValaTerminal2.MainWindow : Window
     private ToolButton btn_paste;
     private ToolButton btn_prev_tab;
     private ToolButton btn_next_tab;
-    private ToolButton btn_rotate;
     private ToolButton tab_counter;
+    private ToolButton btn_rotate;
+    private ToolButton btn_fullscreen;
 
     private static string initial_command;
     private static string[] initial_command_line;
     private bool vertical;  /* true, if toolbar is oriented vertically */
+    private bool fullscreen; /* true, if terminal is shown fullscreen */
 
     /* because of bug http://bugzilla.gnome.org/show_bug.cgi?id=547135,
     we just pass whole commandline to the terminal */
@@ -151,6 +153,11 @@ public class ValaTerminal2.MainWindow : Window
         btn_rotate.clicked += on_rotate_clicked;
         btn_rotate.set_label ("Rotate");
         toolbar.pack_start( btn_rotate, false, false, 0 );
+
+        btn_fullscreen = new Gtk.ToolButton.from_stock( STOCK_FULLSCREEN );
+        btn_fullscreen.clicked += on_fullscreen_clicked;
+        btn_fullscreen.set_label ("Fullscreen");
+        toolbar.pack_start( btn_fullscreen, false, false, 0 );
     }
 
     public void setup_notebook()
@@ -254,6 +261,17 @@ public class ValaTerminal2.MainWindow : Window
         box.set_focus_child(notebook); /* now this does not work? */
         update_toolbar();
         show_all();
+    }
+
+    private void on_fullscreen_clicked( Gtk.ToolButton b )
+    {
+        stdout.printf( "on_fullscreen_clicked\n" );
+        fullscreen = !fullscreen;
+
+        if (fullscreen)
+            ( (Gtk.Window) get_toplevel() ).fullscreen();
+        else
+            ( (Gtk.Window) get_toplevel() ).unfullscreen();
     }
 
     public void update_toolbar()
