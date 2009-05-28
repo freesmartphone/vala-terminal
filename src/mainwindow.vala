@@ -56,11 +56,12 @@ public class ValaTerminal2.MainWindow : Window
     we just pass whole commandline to the terminal */
     private static string hack_command;
 
-    public MainWindow(bool start_vertical)
+    public MainWindow(bool start_vertical, bool start_fullscreen)
     {
         title = "Terminal";
         destroy += Gtk.main_quit;
         vertical= start_vertical;
+        fullscreen= start_fullscreen;
 
         setup_toolbar();
         setup_notebook();
@@ -89,6 +90,9 @@ public class ValaTerminal2.MainWindow : Window
             else
                 update_toolbar();
         };
+
+        if (fullscreen)
+            ( (Gtk.Window) get_toplevel() ).fullscreen();
 
         update_toolbar();
     }
@@ -331,6 +335,7 @@ public class ValaTerminal2.MainWindow : Window
 
         uint fontsize = DEFAULT_FONTSIZE;
         bool start_vertical = DEFAULT_START_VERTICAL;
+        bool start_fullscreen = false;
 
         /*commandline parameter handling*/
         int counter=1;
@@ -341,12 +346,13 @@ public class ValaTerminal2.MainWindow : Window
                stdout.printf("Flag\tparameter\tmeaning\n");
                stdout.printf(" -v\t        \tStart with toolbar vertically (default=%s)\n",DEFAULT_START_VERTICAL?"vertical":"horizontal");
                stdout.printf(" -h\t        \tStart with toolbar horizontally\n");
+               stdout.printf(" --fullscreen\t\tStart fullscreen\n");
                stdout.printf(" -fs\t   int    \tStarting fontize (default=%u)\n",DEFAULT_FONTSIZE);
                stdout.printf(" -f\t fontname \tUses font 'fontname'(default=LiberationMono)\n");
                stdout.printf(" -fc\t  r g b  \tFont color (values are between 0...65535) (default=65535 65535 65535)\n");
                stdout.printf(" -bc\t  r g b  \tBackground color (values are between 0...65535) (default=0 0 0)\n");
                stdout.printf(" -e\tcmd [par1...]\tExecutes 'cmd' inside terminal [with parameters] (-e must be last flag)\n");
-stdout.printf("\n");
+               stdout.printf("\n");
                return 0;
             }
             else if (args[counter]=="-e")   /*from xterm  -e command */
@@ -386,6 +392,12 @@ stdout.printf("\n");
                start_vertical=false;
                counter++;
                //stdout.printf("toolbar switched to horizontal\n");
+            }
+            else if (args[counter]=="--fullscreen") 
+            {
+               start_fullscreen=true;
+               counter++;
+               //stdout.printf("Started with fullscreen\n");
             }
             else if (args[counter]=="-fc") 
             {
@@ -430,7 +442,7 @@ stdout.printf("\n");
         }
 
         ValaTerminal2.MokoTerminal.set_starting_fontsize(fontsize);
-        var window = new MainWindow(start_vertical);
+        var window = new MainWindow(start_vertical,start_fullscreen);
         if ( initial_command != null )
         {
             window.setup_command( initial_command );
