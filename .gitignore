@@ -26,7 +26,6 @@ compile
 stamp-h1
 *.pc
 
-Makefile.in.in
 POTFILES
 stamp-it
 .dirstamp
