@@ -23,7 +23,6 @@ vala_terminal_VALASOURCES = \
 
 vala_terminal_SOURCES = \
 	$(vala_terminal_VALASOURCES:.vala=.c) \
-	$(vala_terminal_VALASOURCES:.vala=.h) \
 	$(NULL)
 
 src/vala-terminal.vala.stamp: $(vala_terminal_VALASOURCES)
@@ -55,4 +54,4 @@ MAINTAINERCLEANFILES = aclocal.m4 compile config.guess config.sub \
                        intltool-extract \
                        intltool-merge \
                        intltool-update \
-                       mkinstalldirs src/*.h src/*.c
+                       mkinstalldirs src/*.c

@@ -8,7 +8,9 @@
 # desktop integration: .desktop file
 #
 desktopdir = $(datadir)/applications
-dist_desktop_DATA = vala-terminal.desktop
+dist_desktop_in_files = vala-terminal.desktop.in
+dist_desktop_DATA = $(dist_desktop_in_files:.desktop.in=.desktop)
+@INTLTOOL_DESKTOP_RULE@
 
 #
 # desktop integration: application icon

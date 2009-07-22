@@ -1,3 +1,5 @@
 [encoding: UTF-8]
 # List of source files which contain translatable strings.
 src/mainwindow.vala
+# files added by intltool-prepare
+data/vala-terminal.desktop.in
