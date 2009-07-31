@@ -25,6 +25,7 @@
  * - (workaround of commandlinebug)
  *
  * - Jump to the new created tab
+ * - Starting geometry
  */
 
 using GLib;
@@ -43,25 +44,32 @@ public class ValaTerminal2.MainWindow : Window
     private ToolButton btn_paste;
     private ToolButton btn_prev_tab;
     private ToolButton btn_next_tab;
-    private ToolButton tab_counter;
+    private Label tab_counter;
     private ToolButton btn_rotate;
     private ToolButton btn_fullscreen;
 
     private static string initial_command;
     private static string[] initial_command_line;
     private bool vertical;  /* true, if toolbar is oriented vertically */
-    private bool fullscreen; /* true, if terminal is shown fullscreen */
+    private bool fullscreen_; /* true, if terminal is shown fullscreen. underscore because gtk.window has function named fullscreen*/
 
     /* because of bug http://bugzilla.gnome.org/show_bug.cgi?id=547135,
     we just pass whole commandline to the terminal */
     private static string hack_command;
 
-    public MainWindow(bool start_vertical, bool start_fullscreen)
+    public MainWindow(bool start_vertical, bool start_fullscreen, int starting_width, int starting_height)
     {
+
+        if (starting_width!=0 && starting_height!=0)
+            {
+            this.set_default_size (starting_width, starting_height);
+            this.allow_shrink=true;
+            }
+
         title = "Terminal";
         destroy += Gtk.main_quit;
         vertical= start_vertical;
-        fullscreen= start_fullscreen;
+        fullscreen_= start_fullscreen;
 
         setup_toolbar();
         setup_notebook();
@@ -91,8 +99,8 @@ public class ValaTerminal2.MainWindow : Window
                 update_toolbar();
         };
 
-        if (fullscreen)
-            ( (Gtk.Window) get_toplevel() ).fullscreen();
+        if (fullscreen_)
+            this.fullscreen();
 
         update_toolbar();
     }
@@ -148,7 +156,7 @@ public class ValaTerminal2.MainWindow : Window
 
         toolbar.pack_start( btn_next_tab, false, false, 0 );
 
-        tab_counter = new ToolButton(null, "");
+        tab_counter = new Label("");
         toolbar.pack_start( tab_counter, false, false, 0 );
 
         //toolbar.insert( new Gtk.SeparatorToolItem(), 11 );
@@ -270,12 +278,12 @@ public class ValaTerminal2.MainWindow : Window
     private void on_fullscreen_clicked( Gtk.ToolButton b )
     {
         stdout.printf( "on_fullscreen_clicked\n" );
-        fullscreen = !fullscreen;
+        fullscreen_ = !fullscreen_;
 
-        if (fullscreen)
-            ( (Gtk.Window) get_toplevel() ).fullscreen();
+        if (fullscreen_)
+            this.fullscreen();
         else
-            ( (Gtk.Window) get_toplevel() ).unfullscreen();
+            this.unfullscreen();
     }
 
     public void update_toolbar()
@@ -337,6 +345,10 @@ public class ValaTerminal2.MainWindow : Window
         bool start_vertical = DEFAULT_START_VERTICAL;
         bool start_fullscreen = false;
 
+        //If commandline parameters do not change these, window will get its defaults
+        int starting_width=0;
+        int starting_height=0;
+
         /*commandline parameter handling*/
         int counter=1;
         while (counter<args.length)
@@ -351,6 +363,7 @@ public class ValaTerminal2.MainWindow : Window
                stdout.printf(" -f\t fontname \tUses font 'fontname'(default=LiberationMono)\n");
                stdout.printf(" -fc\t  r g b  \tFont color (values are between 0...65535) (default=65535 65535 65535)\n");
                stdout.printf(" -bc\t  r g b  \tBackground color (values are between 0...65535) (default=0 0 0)\n");
+               stdout.printf(" -g\t  X Y  \tgeometry (First is width, second is height)\n");
                stdout.printf(" -e\tcmd [par1...]\tExecutes 'cmd' inside terminal [with parameters] (-e must be last flag)\n");
                stdout.printf("\n");
                return 0;
@@ -421,7 +434,18 @@ public class ValaTerminal2.MainWindow : Window
                counter+=4;
                //stdout.printf("background color changed\n");
             }
-
+            else if (args[counter]=="-g") 
+            {
+               if (counter+3>args.length)
+                     {
+                     stdout.printf("USAGE: -g X Y\n");
+                     return 0;
+                     }
+               starting_width=(args[counter+1]).to_int();
+               starting_height=(args[counter+2]).to_int();
+               counter+=3;
+               //stdout.printf("starting geometry changed\n");
+            }
             else if (args[counter]=="-f") 
             {
                if (counter+2>args.length)
@@ -442,7 +466,7 @@ public class ValaTerminal2.MainWindow : Window
         }
 
         ValaTerminal2.MokoTerminal.set_starting_fontsize(fontsize);
-        var window = new MainWindow(start_vertical,start_fullscreen);
+        var window = new MainWindow(start_vertical,start_fullscreen,starting_width,starting_height);
         if ( initial_command != null )
         {
             window.setup_command( initial_command );
