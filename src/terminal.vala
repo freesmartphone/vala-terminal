@@ -159,7 +159,7 @@ public class ValaTerminal2.MokoTerminal : HBox
 
     public void paste_command( string command )
     {
-        terminal.feed_child( command, command.size() );
+        terminal.feed_child( command, (long) command.size() );
     }
 }
 
