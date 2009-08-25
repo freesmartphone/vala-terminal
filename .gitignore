@@ -10,25 +10,25 @@ Makefile
 .deps
 .libs
 
+mkinstalldirs
+po/POTFILES
+po/stamp-it
+src/.dirstamp
+
 config.*
 aclocal.m4
 autom4te.cache
-ChangeLog
 configure
 depcomp
 libtool
 install-sh
 missing
-mkinstalldirs
 ltmain.sh
 ylwrap
 compile
 stamp-h1
 *.pc
-
-POTFILES
-stamp-it
-.dirstamp
+*.service
 
 vala-terminal
 
