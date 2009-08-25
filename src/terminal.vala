@@ -65,7 +65,8 @@ public class ValaTerminal2.MokoTerminal : HBox
       back_blue  = (uint16) b;
       }
 
-
+    public static int starting_width;
+    public static int starting_height;
 
     construct {
         stdout.printf( "moko-terminal constructed\n" );
@@ -86,8 +87,6 @@ public class ValaTerminal2.MokoTerminal : HBox
             back_green = 0x0000;
             back_blue = 0x0000;
             }
-
-
 
         // may read from gconf at some point?
         fontsize = starting_fontsize;
@@ -127,6 +126,9 @@ public class ValaTerminal2.MokoTerminal : HBox
         terminal.set_backspace_binding( TerminalEraseBinding.ASCII_DELETE);
         // work around bug in VTE. FIXME: Clear with upstream
         terminal.fork_command( (string) 0, (string[]) 0, new string[]{}, Environment.get_variable( "HOME" ), true, true, true );
+
+        if ( starting_width > 0 && starting_height > 0 )
+            terminal.set_size( starting_width, starting_height );
     }
 
     public uint get_font_size()

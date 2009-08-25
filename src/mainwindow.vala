@@ -57,15 +57,8 @@ public class ValaTerminal2.MainWindow : Window
     we just pass whole commandline to the terminal */
     private static string hack_command;
 
-    public MainWindow(bool start_vertical, bool start_fullscreen, int starting_width, int starting_height)
+    public MainWindow(bool start_vertical, bool start_fullscreen)
     {
-
-        if (starting_width!=0 && starting_height!=0)
-            {
-            this.set_default_size (starting_width, starting_height);
-            this.allow_shrink=true;
-            }
-
         title = "Terminal";
         destroy += Gtk.main_quit;
         vertical= start_vertical;
@@ -80,7 +73,7 @@ public class ValaTerminal2.MainWindow : Window
             box.pack_start( notebook, true, true, 0 );
             box.pack_start( toolbar, false, false, 0 );
             }
-        else 
+        else
             {
             box = new Gtk.VBox( false, 0 );
             box.pack_end( notebook, true, true, 0 );
@@ -345,10 +338,6 @@ public class ValaTerminal2.MainWindow : Window
         bool start_vertical = DEFAULT_START_VERTICAL;
         bool start_fullscreen = false;
 
-        //If commandline parameters do not change these, window will get its defaults
-        int starting_width=0;
-        int starting_height=0;
-
         /*commandline parameter handling*/
         int counter=1;
         while (counter<args.length)
@@ -363,7 +352,7 @@ public class ValaTerminal2.MainWindow : Window
                stdout.printf(" -f\t fontname \tUses font 'fontname'(default=LiberationMono)\n");
                stdout.printf(" -fc\t  r g b  \tFont color (values are between 0...65535) (default=65535 65535 65535)\n");
                stdout.printf(" -bc\t  r g b  \tBackground color (values are between 0...65535) (default=0 0 0)\n");
-               stdout.printf(" -g\t  X Y  \tgeometry (First is width, second is height)\n");
+               stdout.printf(" -g\t  width height  \tgeometry\n");
                stdout.printf(" -e\tcmd [par1...]\tExecutes 'cmd' inside terminal [with parameters] (-e must be last flag)\n");
                stdout.printf("\n");
                return 0;
@@ -394,13 +383,13 @@ public class ValaTerminal2.MainWindow : Window
                counter+=2;
                //stdout.printf("fontsize switched to %u \n",fontsize);
             }
-            else if (args[counter]=="-v") 
+            else if (args[counter]=="-v")
             {
                start_vertical=true;
                counter++;
                //stdout.printf("toolbar switched to vertical\n");
             }
-            else if (args[counter]=="-h") 
+            else if (args[counter]=="-h")
             {
                start_vertical=false;
                counter++;
@@ -412,7 +401,7 @@ public class ValaTerminal2.MainWindow : Window
                counter++;
                //stdout.printf("Started with fullscreen\n");
             }
-            else if (args[counter]=="-fc") 
+            else if (args[counter]=="-fc")
             {
                if (counter+4>args.length)
                      {
@@ -423,7 +412,7 @@ public class ValaTerminal2.MainWindow : Window
                counter+=4;
                //stdout.printf("foreground color changed\n");
             }
-            else if (args[counter]=="-bc") 
+            else if (args[counter]=="-bc")
             {
                if (counter+4>args.length)
                      {
@@ -434,19 +423,19 @@ public class ValaTerminal2.MainWindow : Window
                counter+=4;
                //stdout.printf("background color changed\n");
             }
-            else if (args[counter]=="-g") 
+            else if (args[counter]=="-g")
             {
                if (counter+3>args.length)
                      {
                      stdout.printf("USAGE: -g X Y\n");
                      return 0;
                      }
-               starting_width=(args[counter+1]).to_int();
-               starting_height=(args[counter+2]).to_int();
+               MokoTerminal.starting_width = args[counter+1].to_int();
+               MokoTerminal.starting_height = args[counter+2].to_int();
                counter+=3;
                //stdout.printf("starting geometry changed\n");
             }
-            else if (args[counter]=="-f") 
+            else if (args[counter]=="-f")
             {
                if (counter+2>args.length)
                      {
@@ -457,7 +446,6 @@ public class ValaTerminal2.MainWindow : Window
                counter+=2;;
                //stdout.printf("font changed\n");
             }
-
             else
             {
                stdout.printf("%s: unknown flag '%s' \nUse --help\n",args[0],args[counter]);
@@ -466,7 +454,7 @@ public class ValaTerminal2.MainWindow : Window
         }
 
         ValaTerminal2.MokoTerminal.set_starting_fontsize(fontsize);
-        var window = new MainWindow(start_vertical,start_fullscreen,starting_width,starting_height);
+        var window = new MainWindow(start_vertical, start_fullscreen);
         if ( initial_command != null )
         {
             window.setup_command( initial_command );
