@@ -161,8 +161,7 @@ public class ValaTerminal2.MokoTerminal : HBox
 
     public void paste_command( string command )
     {
-       string command2=command+"\0";        //Use NUL-terminated string
-       terminal.feed_child( command2, -1 );
+       terminal.feed_child( command + "\0", -1 );
     }
 }
 

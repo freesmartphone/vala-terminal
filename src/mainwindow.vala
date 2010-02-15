@@ -22,6 +22,9 @@
 using GLib;
 using Gtk;
 
+static const uint DEFAULT_FONTSIZE = 5;
+static const bool DEFAULT_START_VERTICAL = false;
+
 public class ValaTerminal2.MainWindow : Window
 {
     private Box box;
@@ -59,19 +62,18 @@ public class ValaTerminal2.MainWindow : Window
         setup_notebook();
 
         if (vertical)
-            {
+        {
             box = new Gtk.HBox( false, 0 );
             box.pack_start( notebook, true, true, 0 );
             box.pack_start( toolbar, false, false, 0 );
-            }
+        }
         else
-            {
+        {
             box = new Gtk.VBox( false, 0 );
             box.pack_end( notebook, true, true, 0 );
             box.pack_end( toolbar, false, false, 0 );
-            }
+        }
         add( box );
-
 
         box.set_focus_child(notebook);
 
@@ -151,6 +153,9 @@ public class ValaTerminal2.MainWindow : Window
         toolbar.pack_start( btn_rotate, false, false, 0 );
 
         btn_fullscreen = new Gtk.ToolButton.from_stock( STOCK_FULLSCREEN );
+
+        //btn_fullscreen.add_accelerator( "fullscreen", new Gtk.AccelGroup(), 'f', 0, Gdk.ModifierType.SHIFT_MASK, Gtk.AccelFlags.VISIBLE );
+        
         btn_fullscreen.clicked += on_fullscreen_clicked;
         btn_fullscreen.set_label ("Fullscreen");
         toolbar.pack_start( btn_fullscreen, false, false, 0 );
@@ -228,8 +233,8 @@ public class ValaTerminal2.MainWindow : Window
         update_toolbar();
     }
 
-   private void on_rotate_clicked( Gtk.ToolButton b )
-   {
+    private void on_rotate_clicked( Gtk.ToolButton b )
+    {
         stdout.printf( "on_rotate_clicked\n" );
         vertical=!vertical;
 
@@ -238,20 +243,20 @@ public class ValaTerminal2.MainWindow : Window
         remove( box );
         setup_toolbar();
 
-       /* toolbar is top of text / right of text (see .pack_start/.pack_end) */
-       if (vertical)
-            {
+        /* toolbar is top of text / right of text (see .pack_start/.pack_end) */
+        if (vertical)
+        {
             box = new Gtk.HBox( false, 0 );
             box.pack_start( notebook, true, true, 0 );
             box.pack_start( toolbar, false, false, 0 );
-            }
-       else 
-            {
+        }
+        else 
+        {
             box = new Gtk.VBox( false, 0 );
             box.pack_end( notebook, true, true, 0 );
             box.pack_end( toolbar, false, false, 0 );
-            }
-       add( box );
+        }
+        add( box );
 
         /* box.grab_focus(); */  /* this does not help*/
         box.set_focus_child(notebook); /* now this does not work? */
@@ -320,10 +325,6 @@ public class ValaTerminal2.MainWindow : Window
             return 1;
         }
 */
-
-        /*I want use these like MACROS, how to put them some else place? */
-        uint DEFAULT_FONTSIZE = 5;
-        bool DEFAULT_START_VERTICAL = false;
 
         uint fontsize = DEFAULT_FONTSIZE;
         bool start_vertical = DEFAULT_START_VERTICAL;
@@ -394,53 +395,53 @@ public class ValaTerminal2.MainWindow : Window
             }
             else if (args[counter]=="-fc")
             {
-               if (counter+4>args.length)
-                     {
-                     stdout.printf("USAGE: -fc int int int\n");
-                     return 0;
-                     }
-               ValaTerminal2.MokoTerminal.set_fore_color((args[counter+1]).to_int(), (args[counter+2]).to_int(),(args[counter+3]).to_int());
-               counter+=4;
-               //stdout.printf("foreground color changed\n");
+                if (counter+4>args.length)
+                {
+                    stdout.printf("USAGE: -fc int int int\n");
+                    return 0;
+                }
+                ValaTerminal2.MokoTerminal.set_fore_color((args[counter+1]).to_int(), (args[counter+2]).to_int(),(args[counter+3]).to_int());
+                counter+=4;
+                //stdout.printf("foreground color changed\n");
             }
             else if (args[counter]=="-bc")
             {
-               if (counter+4>args.length)
-                     {
-                     stdout.printf("USAGE: -bc int int int\n");
-                     return 0;
-                     }
-               ValaTerminal2.MokoTerminal.set_back_color((args[counter+1]).to_int(), (args[counter+2]).to_int(),(args[counter+3]).to_int());
-               counter+=4;
-               //stdout.printf("background color changed\n");
+                if (counter+4>args.length)
+                {
+                    stdout.printf("USAGE: -bc int int int\n");
+                    return 0;
+                }
+                ValaTerminal2.MokoTerminal.set_back_color((args[counter+1]).to_int(), (args[counter+2]).to_int(),(args[counter+3]).to_int());
+                counter+=4;
+                //stdout.printf("background color changed\n");
             }
             else if (args[counter]=="-g")
             {
-               if (counter+3>args.length)
-                     {
-                     stdout.printf("USAGE: -g X Y\n");
-                     return 0;
-                     }
-               MokoTerminal.starting_width = args[counter+1].to_int();
-               MokoTerminal.starting_height = args[counter+2].to_int();
-               counter+=3;
-               //stdout.printf("starting geometry changed\n");
+                if (counter+3>args.length)
+                {
+                    stdout.printf("USAGE: -g X Y\n");
+                    return 0;
+                }
+                MokoTerminal.starting_width = args[counter+1].to_int();
+                MokoTerminal.starting_height = args[counter+2].to_int();
+                counter+=3;
+                //stdout.printf("starting geometry changed\n");
             }
             else if (args[counter]=="-f")
             {
-               if (counter+2>args.length)
-                     {
-                     stdout.printf("USAGE: -f fontname\n");
-                     return 0;
-                     }
-               ValaTerminal2.MokoTerminal.set_font(args[counter+1]);
-               counter+=2;;
+                if (counter+2>args.length)
+                {
+                    stdout.printf("USAGE: -f fontname\n");
+                    return 0;
+                }
+                ValaTerminal2.MokoTerminal.set_font(args[counter+1]);
+                counter+=2;;
                //stdout.printf("font changed\n");
             }
             else
             {
-               stdout.printf("%s: unknown flag '%s' \nUse --help\n",args[0],args[counter]);
-               return 1;
+                stdout.printf("%s: unknown flag '%s' \nUse --help\n",args[0],args[counter]);
+                return 1;
             }
         }
 
