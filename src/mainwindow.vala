@@ -44,6 +44,7 @@ public class ValaTerminal2.MainWindow : Window
 
     private static string initial_command;
     private static string[] initial_command_line;
+    private static const string default_title = "Terminal";
     private bool vertical;  /* true, if toolbar is oriented vertically */
     private bool fullscreen_; /* true, if terminal is shown fullscreen. underscore because gtk.window has function named fullscreen*/
 
@@ -53,7 +54,7 @@ public class ValaTerminal2.MainWindow : Window
 
     public MainWindow(bool start_vertical, bool start_fullscreen)
     {
-        title = "Terminal";
+        title = default_title;
         destroy += Gtk.main_quit;
         vertical= start_vertical;
         fullscreen_= start_fullscreen;
@@ -82,7 +83,10 @@ public class ValaTerminal2.MainWindow : Window
             if ( notebook.get_n_pages() == 0 )
                 Gtk.main_quit();
             else
+            {
                 update_toolbar();
+                update_title();
+            }
         };
 
         if (fullscreen_)
@@ -168,9 +172,7 @@ public class ValaTerminal2.MainWindow : Window
         notebook.set_show_tabs(false);
         notebook.set_show_border(false);
 
-        var terminal = new ValaTerminal2.MokoTerminal();
-        notebook.append_page( terminal, new Image.from_stock( STOCK_INDEX, IconSize.LARGE_TOOLBAR ) );
-        notebook.child_set (terminal, "tab-expand", true, null );
+        var terminal = add_new_terminal();
         /* see bug: http://bugzilla.gnome.org/show_bug.cgi?id=547135 */
         if ( hack_command != null )
             terminal.paste_command(hack_command);
@@ -179,12 +181,20 @@ public class ValaTerminal2.MainWindow : Window
     private void on_new_clicked( Gtk.ToolButton b )
     {
         stdout.printf( "on_new_clicked\n" );
-        var terminal = new ValaTerminal2.MokoTerminal();
-        notebook.append_page( terminal, new Image.from_stock( STOCK_INDEX, IconSize.LARGE_TOOLBAR ) );
-        notebook.child_set (terminal, "tab-expand", true, null );
+        add_new_terminal();
         notebook.show_all();
         notebook.set_current_page(notebook.get_n_pages()-1); /*jump to that new tab*/
         update_toolbar();
+        update_title();
+    }
+
+    private ValaTerminal2.MokoTerminal add_new_terminal()
+    {
+        var terminal = new ValaTerminal2.MokoTerminal();
+        terminal.title_changed += on_title_changed;
+        notebook.append_page( terminal, new Image.from_stock( STOCK_INDEX, IconSize.LARGE_TOOLBAR ) );
+        notebook.child_set (terminal, "tab-expand", true, null );
+        return terminal;
     }
 
     private void on_delete_clicked( Gtk.ToolButton b )
@@ -192,7 +202,7 @@ public class ValaTerminal2.MainWindow : Window
         stdout.printf( "on_delete_clicked\n" );
         var page = notebook.get_nth_page( notebook.get_current_page() );
         page.destroy();
-        // update_toolbar will be called through the page-removed signal handler
+        // update_toolbar and update_title will be called through the page-removed signal handler
     }
 
     private void on_zoom_in_clicked( Gtk.ToolButton b )
@@ -224,6 +234,7 @@ public class ValaTerminal2.MainWindow : Window
         stdout.printf( "on_prev_tab_clicked\n" );
         notebook.prev_page();
         update_toolbar();
+        update_title();
     }
 
     private void on_next_tab_clicked( Gtk.ToolButton b )
@@ -231,6 +242,7 @@ public class ValaTerminal2.MainWindow : Window
         stdout.printf( "on_next_tab_clicked\n" );
         notebook.next_page();
         update_toolbar();
+        update_title();
     }
 
     private void on_rotate_clicked( Gtk.ToolButton b )
@@ -273,6 +285,21 @@ public class ValaTerminal2.MainWindow : Window
             this.fullscreen();
         else
             this.unfullscreen();
+    }
+
+    private void on_title_changed(ValaTerminal2.MokoTerminal terminal)
+    {
+        update_title();
+    }
+
+    private void update_title()
+    {
+        ValaTerminal2.MokoTerminal terminal = (ValaTerminal2.MokoTerminal) notebook.get_nth_page( notebook.get_current_page() );
+        string s = terminal.get_title();
+        if (s.length == 0)
+            title = default_title;
+        else
+            title = s;
     }
 
     public void update_toolbar()

@@ -45,6 +45,13 @@ public class ValaTerminal2.MokoTerminal : HBox
    private static uint16 fore_green ;
    private static uint16 fore_blue  ;
 
+   public signal void title_changed();
+
+   public string get_title()
+   {
+      return terminal.window_title;
+   }
+
    public static void set_fore_color(uint r,uint g,uint b) {
       use_default_fore_color=false;
       fore_red   = (uint16) r;
@@ -95,7 +102,7 @@ public class ValaTerminal2.MokoTerminal : HBox
         // auto-exit may become a preference at some point?
         terminal.child_exited += term => { destroy(); };
         terminal.eof += term => { destroy(); };
-        terminal.window_title_changed += term => { Gtk.Window toplevel = (Gtk.Window) get_toplevel(); toplevel.set_title( term.window_title ); };
+        terminal.window_title_changed += term => { title_changed(); };
         pack_start( terminal, true, true, 0 );
 
         scrollbar = new VScrollbar( terminal.adjustment );
