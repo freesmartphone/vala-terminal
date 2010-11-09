@@ -295,8 +295,8 @@ public class ValaTerminal2.MainWindow : Window
     private void update_title()
     {
         ValaTerminal2.MokoTerminal terminal = (ValaTerminal2.MokoTerminal) notebook.get_nth_page( notebook.get_current_page() );
-        string s = terminal.get_title();
-        if (s.length == 0)
+        string? s = terminal.get_title();
+        if (s == null || s.length == 0)
             title = default_title;
         else
             title = s;

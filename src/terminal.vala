@@ -47,8 +47,9 @@ public class ValaTerminal2.MokoTerminal : HBox
 
    public signal void title_changed();
 
-   public string get_title()
+   public string? get_title()
    {
+      // returns null when no title is set!
       return terminal.window_title;
    }
 
