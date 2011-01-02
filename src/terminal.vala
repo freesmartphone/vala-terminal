@@ -101,9 +101,15 @@ public class ValaTerminal2.MokoTerminal : HBox
 
         terminal = new Vte.Terminal();
         // auto-exit may become a preference at some point?
-        terminal.child_exited += term => { destroy(); };
-        terminal.eof += term => { destroy(); };
-        terminal.window_title_changed += term => { title_changed(); };
+        terminal.child_exited.connect( (term) => {
+            destroy();
+        } );
+        terminal.eof.connect( (term) => {
+            destroy();
+        } );
+        terminal.window_title_changed.connect( (term) => {
+            title_changed();
+        } );
         pack_start( terminal, true, true, 0 );
 
         scrollbar = new VScrollbar( terminal.adjustment );

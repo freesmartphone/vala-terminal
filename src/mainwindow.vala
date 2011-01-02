@@ -1,7 +1,7 @@
 /*
  * Vala-Terminal -- a lightweight terminal program
  *
- * (C) 2007-2010 Michael 'Mickey' Lauer <mickey@vanille-media.de>
+ * (C) 2007-2011 Michael 'Mickey' Lauer <mickey@vanille-media.de>
  * (C) 2009 Aapo Rantalainen
  *
  * This program is free software; you can redistribute it and/or modify
@@ -55,7 +55,7 @@ public class ValaTerminal2.MainWindow : Window
     public MainWindow(bool start_vertical, bool start_fullscreen)
     {
         title = default_title;
-        destroy += Gtk.main_quit;
+        destroy.connect( Gtk.main_quit );
         vertical= start_vertical;
         fullscreen_= start_fullscreen;
 
@@ -78,7 +78,7 @@ public class ValaTerminal2.MainWindow : Window
 
         box.set_focus_child(notebook);
 
-        notebook.page_removed += (o, page, num) => {
+        notebook.page_removed.connect( (o, page, num) => {
             stdout.printf( "on_page_removed\n");
             if ( notebook.get_n_pages() == 0 )
                 Gtk.main_quit();
@@ -87,7 +87,7 @@ public class ValaTerminal2.MainWindow : Window
                 update_toolbar();
                 update_title();
             }
-        };
+        } );
 
         if (fullscreen_)
             this.fullscreen();
@@ -107,41 +107,41 @@ public class ValaTerminal2.MainWindow : Window
         else
             toolbar = new Gtk.HBox( false, 0 );
 
-        btn_new = new Gtk.ToolButton.from_stock( STOCK_NEW );
-        btn_new.clicked += on_new_clicked;
+        btn_new = new Gtk.ToolButton.from_stock( Gtk.Stock.NEW );
+        btn_new.clicked.connect( on_new_clicked );
         toolbar.pack_start( btn_new, false, false, 0 );
 
-        btn_delete = new Gtk.ToolButton.from_stock( STOCK_DELETE );
-        btn_delete.clicked += on_delete_clicked;
+        btn_delete = new Gtk.ToolButton.from_stock( Gtk.Stock.DELETE );
+        btn_delete.clicked.connect( on_delete_clicked );
         toolbar.pack_start( btn_delete, false, false, 0 );
 
         //toolbar.insert( new Gtk.SeparatorToolItem(), 2 );
 
-        btn_zoom_in = new Gtk.ToolButton.from_stock( STOCK_ZOOM_IN );
-        btn_zoom_in.clicked += on_zoom_in_clicked;
+        btn_zoom_in = new Gtk.ToolButton.from_stock( Gtk.Stock.ZOOM_IN );
+        btn_zoom_in.clicked.connect( on_zoom_in_clicked );
         toolbar.pack_start( btn_zoom_in, false, false, 0 );
 
-        btn_zoom_out = new Gtk.ToolButton.from_stock( STOCK_ZOOM_OUT );
-        btn_zoom_out.clicked += on_zoom_out_clicked;
+        btn_zoom_out = new Gtk.ToolButton.from_stock( Gtk.Stock.ZOOM_OUT );
+        btn_zoom_out.clicked.connect( on_zoom_out_clicked );
         toolbar.pack_start( btn_zoom_out, false, false, 0 );
 
         //toolbar.insert( new Gtk.SeparatorToolItem(), 5 );
 
-        btn_paste = new Gtk.ToolButton.from_stock( STOCK_PASTE );
-        btn_paste.clicked += on_paste_clicked;
+        btn_paste = new Gtk.ToolButton.from_stock( Gtk.Stock.PASTE );
+        btn_paste.clicked.connect( on_paste_clicked );
         toolbar.pack_start( btn_paste, false, false, 0 );
 
         //toolbar.insert( new Gtk.SeparatorToolItem(), 7 );
 
 
-        btn_prev_tab = new Gtk.ToolButton.from_stock( STOCK_GO_BACK );
-        btn_prev_tab.clicked += on_prev_tab_clicked;
+        btn_prev_tab = new Gtk.ToolButton.from_stock( Gtk.Stock.GO_BACK );
+        btn_prev_tab.clicked.connect( on_prev_tab_clicked );
         btn_prev_tab.set_sensitive( false);
 
         toolbar.pack_start( btn_prev_tab, false, false, 0 );
 
-        btn_next_tab = new Gtk.ToolButton.from_stock( STOCK_GO_FORWARD );
-        btn_next_tab.clicked += on_next_tab_clicked;
+        btn_next_tab = new Gtk.ToolButton.from_stock( Gtk.Stock.GO_FORWARD );
+        btn_next_tab.clicked.connect( on_next_tab_clicked );
         btn_next_tab.set_sensitive( false);
 
         toolbar.pack_start( btn_next_tab, false, false, 0 );
@@ -151,17 +151,17 @@ public class ValaTerminal2.MainWindow : Window
 
         //toolbar.insert( new Gtk.SeparatorToolItem(), 11 );
 
-        btn_rotate = new Gtk.ToolButton.from_stock( STOCK_REFRESH );
-        btn_rotate.clicked += on_rotate_clicked;
-        btn_rotate.set_label ("Rotate");
+        btn_rotate = new Gtk.ToolButton.from_stock( Gtk.Stock.REFRESH );
+        btn_rotate.clicked.connect( on_rotate_clicked );
+        btn_rotate.set_label( "Rotate" );
         toolbar.pack_start( btn_rotate, false, false, 0 );
 
-        btn_fullscreen = new Gtk.ToolButton.from_stock( STOCK_FULLSCREEN );
+        btn_fullscreen = new Gtk.ToolButton.from_stock( Gtk.Stock.FULLSCREEN );
 
         //btn_fullscreen.add_accelerator( "fullscreen", new Gtk.AccelGroup(), 'f', 0, Gdk.ModifierType.SHIFT_MASK, Gtk.AccelFlags.VISIBLE );
-        
-        btn_fullscreen.clicked += on_fullscreen_clicked;
-        btn_fullscreen.set_label ("Fullscreen");
+
+        btn_fullscreen.clicked.connect( on_fullscreen_clicked );
+        btn_fullscreen.set_label( "Fullscreen" );
         toolbar.pack_start( btn_fullscreen, false, false, 0 );
     }
 
@@ -191,8 +191,8 @@ public class ValaTerminal2.MainWindow : Window
     private ValaTerminal2.MokoTerminal add_new_terminal()
     {
         var terminal = new ValaTerminal2.MokoTerminal();
-        terminal.title_changed += on_title_changed;
-        notebook.append_page( terminal, new Image.from_stock( STOCK_INDEX, IconSize.LARGE_TOOLBAR ) );
+        terminal.title_changed.connect( on_title_changed );
+        notebook.append_page( terminal, new Image.from_stock( Gtk.Stock.INDEX, IconSize.LARGE_TOOLBAR ) );
         notebook.child_set (terminal, "tab-expand", true, null );
         return terminal;
     }
@@ -248,7 +248,7 @@ public class ValaTerminal2.MainWindow : Window
     private void on_rotate_clicked( Gtk.ToolButton b )
     {
         stdout.printf( "on_rotate_clicked\n" );
-        vertical=!vertical;
+        vertical = !vertical;
 
         box.remove(notebook);
         box.remove(toolbar);
@@ -262,7 +262,7 @@ public class ValaTerminal2.MainWindow : Window
             box.pack_start( notebook, true, true, 0 );
             box.pack_start( toolbar, false, false, 0 );
         }
-        else 
+        else
         {
             box = new Gtk.VBox( false, 0 );
             box.pack_end( notebook, true, true, 0 );
@@ -317,8 +317,8 @@ public class ValaTerminal2.MainWindow : Window
         btn_zoom_out.set_sensitive( terminal.get_font_size() > 1 );
 
         var current_tab = notebook.get_current_page();
-        if (current_tab==-1) /* This in case of error. Do not show error to user */
-            current_tab=0;
+        if (current_tab == -1) /* This in case of error. Do not show error to user */
+            current_tab = 0;
         current_tab++;       /* Program starts calculating tabs from 0, so we add one to it */
 
         string count = "tab:%d/%d".printf (current_tab, notebook.get_n_pages());
@@ -361,7 +361,7 @@ public class ValaTerminal2.MainWindow : Window
         int counter=1;
         while (counter<args.length)
         {
-            if (args[counter]=="--help") 
+            if (args[counter]=="--help")
             {
                stdout.printf("Flag\tparameter\tmeaning\n");
                stdout.printf(" -v\t        \tStart with toolbar vertically (default=%s)\n",DEFAULT_START_VERTICAL?"vertical":"horizontal");
@@ -389,7 +389,7 @@ public class ValaTerminal2.MainWindow : Window
                //stdout.printf( "hack command: '%s'\n",hack_command );
                counter=args.length;
             }
-            else if (args[counter]=="-fs") 
+            else if (args[counter]=="-fs")
             {
                if (counter+2>args.length)
                      {
@@ -397,7 +397,7 @@ public class ValaTerminal2.MainWindow : Window
                      return 0;
                      }
                fontsize=(args[counter+1]).to_int();
-               if (fontsize<1) 
+               if (fontsize<1)
                   fontsize=1;
                counter+=2;
                //stdout.printf("fontsize switched to %u \n",fontsize);
@@ -414,7 +414,7 @@ public class ValaTerminal2.MainWindow : Window
                counter++;
                //stdout.printf("toolbar switched to horizontal\n");
             }
-            else if (args[counter]=="--fullscreen") 
+            else if (args[counter]=="--fullscreen")
             {
                start_fullscreen=true;
                counter++;

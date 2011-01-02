@@ -1,4 +1,4 @@
-NULL = 
+NULL =
 
 AUTOMAKE_OPTIONS = subdir-objects
 
@@ -12,7 +12,7 @@ INCLUDES = \
 	-include $(CONFIG_HEADER) \
 	$(NULL)
 
-BUILT_SOURCES = src/vala-terminal.vala.stamp
+BUILT_SOURCES = src/.stamp
 
 bin_PROGRAMS = vala-terminal
 
@@ -25,7 +25,7 @@ vala_terminal_SOURCES = \
 	$(vala_terminal_VALASOURCES:.vala=.c) \
 	$(NULL)
 
-src/vala-terminal.vala.stamp: $(vala_terminal_VALASOURCES)
+$(BUILT_SOURCES): $(vala_terminal_VALASOURCES)
 	$(VALAC) -c --pkg vte --save-temps --basedir $(top_srcdir) $^
 	touch $@
 
@@ -38,7 +38,7 @@ EXTRA_DIST = \
 	intltool-update.in \
 	intltool-merge.in \
 	$(vala_terminal_VALASOURCES) \
-	src/vala-terminal.vala.stamp \
+	$(BUILT_SOURCES) \
 	$(NULL)
 
 DISTCLEANFILES = \
