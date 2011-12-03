@@ -1,0 +1,11 @@
+[Desktop Entry]
+_Name=Terminal
+_Comment=Command Line Interface
+Exec=vala-terminal
+Icon=vala-terminal
+Terminal=false
+Type=Application
+Categories=GTK;Utility;
+MimeType=text/x-vcard;
+X-SingleInstance=true
+StartupNotify=true

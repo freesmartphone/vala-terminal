@@ -1,1 +1,5 @@
 src/mainwindow.c
+src/mainwindow.vala
+src/terminal.c
+src/terminal.vala
+src/vala-terminal.vala.stamp
